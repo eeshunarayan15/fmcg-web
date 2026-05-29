@@ -308,8 +308,8 @@ const LOCATIONS = ["Hoshangabad", "Timarni", "Bhopal"];
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function Badge({ type, label = null }) {
-  const map = {
+function Badge({ type, label = null }: { type: string; label?: string | null }) {
+  const map: Record<string, { bg: string; text: string; dot: string }> = {
     ok: { bg: "#14532d", text: "#86efac", dot: "#22C55E" },
     low: { bg: "#78350f", text: "#fcd34d", dot: "#F59E0B" },
     critical: { bg: "#7f1d1d", text: "#fca5a5", dot: "#EF4444" },
@@ -347,7 +347,14 @@ function Badge({ type, label = null }) {
   );
 }
 
-function KPICard({ icon: Icon, label, value, sub, trend, color }) {
+function KPICard({ icon: Icon, label, value, sub, trend, color }: { 
+  icon: React.ComponentType<{ size?: number; color?: string }>;
+  label: string;
+  value: string;
+  sub: string;
+  trend: number;
+  color: string;
+}) {
   return (
     <div
       style={{
@@ -411,7 +418,10 @@ function KPICard({ icon: Icon, label, value, sub, trend, color }) {
   );
 }
 
-function SectionHeader({ title, action = null }) {
+function SectionHeader({ title, action = null }: { 
+  title: string; 
+  action?: { label: string; fn: () => void } | null;
+}) {
   return (
     <div
       style={{
@@ -564,7 +574,7 @@ function Dashboard() {
                   borderRadius: 8,
                   color: COLORS.text,
                 }}
-                formatter={(v) => [`₹${v.toLocaleString()}`, "Sales"]}
+                formatter={(v) => [`₹${(v as number).toLocaleString()}`, "Sales"]}
               />
               <Bar
                 dataKey="sales"
@@ -1088,7 +1098,7 @@ function InventoryPage() {
 }
 
 function ProductionPage() {
-  const [active, setActive] = useState(null);
+  const [active, setActive] = useState<number | null>(null);
   const [form, setForm] = useState({
     product: "Mirchi Powder",
     rawQty: 100,
@@ -1111,7 +1121,7 @@ function ProductionPage() {
   const perKgCost = netQty > 0 ? totalCost / netQty : 0;
   const withGST = perKgCost * (1 + form.gst / 100);
 
-  const update = (k, v) => setForm((p) => ({ ...p, [k]: parseFloat(v) || 0 }));
+  const update = (k: string, v: string) => setForm((p) => ({ ...p, [k]: parseFloat(v) || 0 }));
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -1230,7 +1240,7 @@ function ProductionPage() {
                 </label>
                 <input
                   type={type}
-                  value={form[key]}
+                  value={form[key as keyof typeof form]}
                   onChange={(e) =>
                     type === "text"
                       ? setForm((p) => ({ ...p, [key]: e.target.value }))
@@ -1396,14 +1406,14 @@ function ProductionPage() {
 }
 
 function PricingPage() {
-  const [umbrellaActive, setUmbrellaActive] = useState(null);
-  const [tierOverride, setTierOverride] = useState({});
+  const [umbrellaActive, setUmbrellaActive] = useState<number | null>(null);
+  const [tierOverride, setTierOverride] = useState<Record<number, number>>({});
 
-  const activeTier = (id) => tierOverride[id] || 3;
-  const setTier = (id, t) => setTierOverride((p) => ({ ...p, [id]: t }));
+  const activeTier = (id: number) => tierOverride[id] || 3;
+  const setTier = (id: number, t: number) => setTierOverride((p) => ({ ...p, [id]: t }));
 
-  const tierLabels = { 1: "Wholesale", 2: "Retail", 3: "Normal" };
-  const tierColors = { 1: COLORS.info, 2: COLORS.warning, 3: COLORS.success };
+  const tierLabels: Record<number, string> = { 1: "Wholesale", 2: "Retail", 3: "Normal" };
+  const tierColors: Record<number, string> = { 1: COLORS.info, 2: COLORS.warning, 3: COLORS.success };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -1576,7 +1586,7 @@ function PricingPage() {
                         )}
                       </div>
                       <div style={{ fontSize: 12, color: COLORS.textDim }}>
-                        {u[`tier${t}`]}
+                        {u[`tier${t}` as keyof typeof u]}
                       </div>
                       <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                         <input
@@ -2010,11 +2020,11 @@ const NAV = [
 ];
 
 export default function App() {
-  const [page, setPage] = useState("dashboard");
+  const [page, setPage] = useState<string>("dashboard");
   const [location, setLocation] = useState("Hoshangabad");
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const pages = {
+  const pages: Record<string, React.ReactElement> = {
     dashboard: <Dashboard />,
     inventory: <InventoryPage />,
     production: <ProductionPage />,
